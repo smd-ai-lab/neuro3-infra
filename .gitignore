@@ -1,0 +1,11 @@
+.cache
+.env
+env/
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+id_rsa
+id_rsa.pub
+*.log
+certs/
