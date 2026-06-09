@@ -55,3 +55,28 @@ resource "null_resource" "install_kind" {
     ]
   }
 }
+
+resource "null_resource" "install_helm" {
+  depends_on = [null_resource.install_kind]
+
+  triggers = {
+    instance_id = vultr_instance.rustr-org.id
+  }
+
+  connection {
+    type        = "ssh"
+    host        = vultr_instance.rustr-org.main_ip
+    user        = "root"
+    private_key = file("${path.module}/id_rsa")
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "set -eu",
+      "curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 -o /tmp/get-helm-3.sh",
+      "chmod +x /tmp/get-helm-3.sh",
+      "/tmp/get-helm-3.sh",
+      "helm version",
+    ]
+  }
+}
