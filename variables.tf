@@ -10,7 +10,7 @@ variable "porkbun_api_key" {
   sensitive   = true
 }
 
-variable "porkbun_secret_api_key" {
+variable "porkbun_secret_key" {
   description = "Secret API key for Porkbun provider"
   type        = string
   sensitive   = true

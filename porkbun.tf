@@ -28,7 +28,7 @@ resource "null_resource" "porkbun_a_record" {
       PORKBUN_DOMAIN     = var.porkbun_domain
       PORKBUN_CONTENT    = vultr_instance.rustr-org.main_ip
       PORKBUN_API_KEY    = var.porkbun_api_key
-      PORKBUN_SECRET_KEY = var.porkbun_secret_api_key
+      PORKBUN_SECRET_KEY = var.porkbun_secret_key
     }
   }
 }
