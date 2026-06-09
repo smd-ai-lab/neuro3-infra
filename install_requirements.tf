@@ -111,3 +111,54 @@ resource "null_resource" "install_kubectl" {
     ]
   }
 }
+
+resource "null_resource" "setup_env_vars" {
+  depends_on = [null_resource.install_kubectl]
+
+  triggers = {
+    instance_id = vultr_instance.rustr-org.id
+  }
+
+  connection {
+    type        = "ssh"
+    host        = vultr_instance.rustr-org.main_ip
+    user        = "root"
+    private_key = file("${path.module}/id_rsa")
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "set -eu",
+      "echo 'OPENAI_API_KEY=${var.openai_api_key}' >> /etc/environment",
+      "echo 'export OPENAI_API_KEY=${var.openai_api_key}' > /etc/profile.d/openai.sh",
+      "echo 'OPENAI_ORGANIZATION_ID=${var.openai_organization_id}' >> /etc/environment",
+      "echo 'export OPENAI_ORGANIZATION_ID=${var.openai_organization_id}' > /etc/profile.d/openai.sh",
+      "echo 'OPENAI_URL=${var.openai_url}' >> /etc/environment",
+      "echo 'export OPENAI_URL=${var.openai_url}' > /etc/profile.d/openai.sh",
+      "chmod +x /etc/profile.d/openai.sh",
+    ]
+  }
+}
+
+resource "null_resource" "install_kagent" {
+  depends_on = [null_resource.setup_env_vars]
+
+  triggers = {
+    instance_id = vultr_instance.rustr-org.id
+  }
+
+  connection {
+    type        = "ssh"
+    host        = vultr_instance.rustr-org.main_ip
+    user        = "root"
+    private_key = file("${path.module}/id_rsa")
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "set -eu",
+      "curl -fsSL https://raw.githubusercontent.com/kagent-dev/kagent/refs/heads/main/scripts/get-kagent | bash",
+      "kagent version",
+    ]
+  }
+}
