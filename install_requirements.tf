@@ -80,3 +80,34 @@ resource "null_resource" "install_helm" {
     ]
   }
 }
+
+resource "null_resource" "install_kubectl" {
+  depends_on = [null_resource.install_helm]
+
+  triggers = {
+    instance_id = vultr_instance.rustr-org.id
+  }
+
+  connection {
+    type        = "ssh"
+    host        = vultr_instance.rustr-org.main_ip
+    user        = "root"
+    private_key = file("${path.module}/id_rsa")
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "set -eu",
+      "ARCH=$(uname -m)",
+      "if [ \"$ARCH\" = 'x86_64' ]; then",
+      "  curl -Lo /usr/local/bin/kubectl https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl",
+      "elif [ \"$ARCH\" = 'aarch64' ]; then",
+      "  curl -Lo /usr/local/bin/kubectl https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl",
+      "else",
+      "  echo 'Unsupported architecture: $ARCH' && exit 1",
+      "fi",
+      "chmod +x /usr/local/bin/kubectl",
+      "kubectl version --client",
+    ]
+  }
+}
