@@ -3,6 +3,7 @@
 env/
 .terraform/
 .terraform.lock.hcl
+.teraform.tfstate.lock.info
 *.tfstate
 *.tfstate.backup
 id_rsa
