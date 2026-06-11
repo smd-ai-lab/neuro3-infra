@@ -1,3 +1,5 @@
+# Docker
+# -------------------------------------------------------------
 resource "null_resource" "install_docker" {
   depends_on = [vultr_instance.rustr-org]
 
@@ -25,6 +27,8 @@ resource "null_resource" "install_docker" {
   }
 }
 
+# Kind
+# -------------------------------------------------------------
 resource "null_resource" "install_kind" {
   depends_on = [null_resource.install_docker]
 
@@ -56,6 +60,8 @@ resource "null_resource" "install_kind" {
   }
 }
 
+# Helm
+# -------------------------------------------------------------
 resource "null_resource" "install_helm" {
   depends_on = [null_resource.install_kind]
 
@@ -81,6 +87,8 @@ resource "null_resource" "install_helm" {
   }
 }
 
+# Kubectl
+# -------------------------------------------------------------
 resource "null_resource" "install_kubectl" {
   depends_on = [null_resource.install_helm]
 
@@ -112,6 +120,8 @@ resource "null_resource" "install_kubectl" {
   }
 }
 
+# env vars
+# -------------------------------------------------------------
 resource "null_resource" "setup_env_vars" {
   depends_on = [null_resource.install_kubectl]
 
@@ -140,25 +150,27 @@ resource "null_resource" "setup_env_vars" {
   }
 }
 
-resource "null_resource" "install_kagent" {
-  depends_on = [null_resource.setup_env_vars]
+# # KAgent
+# # -------------------------------------------------------------
+# resource "null_resource" "install_kagent" {
+#   depends_on = [null_resource.setup_env_vars]
 
-  triggers = {
-    instance_id = vultr_instance.rustr-org.id
-  }
+#   triggers = {
+#     instance_id = vultr_instance.rustr-org.id
+#   }
 
-  connection {
-    type        = "ssh"
-    host        = vultr_instance.rustr-org.main_ip
-    user        = "root"
-    private_key = file("${path.module}/id_rsa")
-  }
+#   connection {
+#     type        = "ssh"
+#     host        = vultr_instance.rustr-org.main_ip
+#     user        = "root"
+#     private_key = file("${path.module}/id_rsa")
+#   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "set -eu",
-      "curl -fsSL https://raw.githubusercontent.com/kagent-dev/kagent/refs/heads/main/scripts/get-kagent | bash",
-      "kagent version",
-    ]
-  }
-}
+#   provisioner "remote-exec" {
+#     inline = [
+#       "set -eu",
+#       "curl -fsSL https://raw.githubusercontent.com/kagent-dev/kagent/refs/heads/main/scripts/get-kagent | bash",
+#       "kagent version",
+#     ]
+#   }
+# }
