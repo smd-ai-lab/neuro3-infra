@@ -1,0 +1,31 @@
+services:
+  vector-db-mcp:
+    image: sokube/mcp-sqlite-vec:latest
+    container_name: mcp-sqlite-vec
+    ports:
+      - "3001:3001"
+    environment:
+      - TRANSPORT_TYPE=http
+      - DB_DIR=${DB_DIR:-/app/mcp/data}
+      - SQLITE_DB_DIR=${DB_DIR:-/app/mcp/data}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    restart: unless-stopped
+
+  kagent-tools-mcp:
+    image: ghcr.io/kagent-dev/kagent/tools:${KAGENT_TOOLS_VERSION}
+    container_name: mcp-kagent
+    ports:
+      - "8084:8084"
+    volumes:
+      - ${HOME}/.kube:/home/user/.kube:ro
+    environment:
+      - KUBECONFIG_NAME=${KUBECONFIG_NAME}
+    command: ["--kubeconfig", "/home/user/.kube/${KUBECONFIG_NAME}-internal"]
+    restart: unless-stopped
+    networks:
+      - kind
+
+networks:
+  kind:
+    external: true
+    name: kind
